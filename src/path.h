@@ -1,4 +1,6 @@
-#include <iostream>
+#ifndef SQLP_PATH_H
+#define SQLP_PATH_H
+
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -36,14 +38,4 @@ public:
     }
 };
 
-int main() {
-  const Path path{"w", {"author", "name"}};
-
-  std::cout << path.root();
-
-  for (const auto &feature : path.features()) {
-    std::cout << '.' << feature;
-  }
-
-  std::cout << '\n';
-}
+#endif
