@@ -20,7 +20,7 @@ public:
         };
       }
 
-      for (const auto &feature : features) {
+      for (const auto &feature : features_) {
         if (feature.empty()) {
           throw std::invalid_argument{
             "A feature name cannot be empty"
@@ -33,7 +33,7 @@ public:
       return root_;
     }
 
-    const std::vector<std::string> features() const {
+    const std::vector<std::string> &features() const {
       return features_;
     }
 };
