@@ -14,11 +14,16 @@ build/path_test: tests/path_test.cc src/path.h Makefile
 	mkdir -p build
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) tests/path_test.cc -o $@
 
+build/mapping_test: tests/mapping_test.cc src/mapping.cc src/mapping.h Makefile
+	mkdir -p build
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) tests/mapping_test.cc src/mapping.cc -o $@
+
 run: build/sqlp_demo
 	./build/sqlp_demo
 
-test: build/path_test
+test: build/path_test build/mapping_test
 	./build/path_test
+	./build/mapping_test
 
 clean:
 	rm -rf build

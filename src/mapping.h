@@ -10,6 +10,7 @@ struct ReferenceMapping {
     std::string source_column;
     std::string target_table;
     std::string target_column;
+    bool operator==(const ReferenceMapping &other) const = default;
 };
 
 const ReferenceMapping &find_reference(
