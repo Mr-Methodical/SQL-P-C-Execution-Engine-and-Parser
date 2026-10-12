@@ -26,7 +26,15 @@ int main() {
     } catch(const std::invalid_argument &) {
         // good this is what we want
     }
+    try {
+        find_reference(references, "UNKNOWN", "author");
 
-    std::cout << "passed all 3 tests\n";
+        std::cerr << "accepted an unknown source table\n";
+        return 1;
+    } catch (const std::invalid_argument &) {
+        // Expected.
+    }
+
+    std::cout << "passed all 4 tests\n";
     return 0;
 }
