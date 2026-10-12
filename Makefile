@@ -18,12 +18,19 @@ build/mapping_test: tests/mapping_test.cc src/mapping.cc src/mapping.h Makefile
 	mkdir -p build
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) tests/mapping_test.cc src/mapping.cc -o $@
 
+build/sql_test: tests/sql_test.cc src/sql.cc src/sql.h src/mapping.cc \
+				src/mapping.h Makefile
+	mkdir -p build
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) tests/sql_test.cc \
+	src/sql.cc src/mapping.cc -o $@
+
 run: build/sqlp_demo
 	./build/sqlp_demo
 
-test: build/path_test build/mapping_test
+test: build/path_test build/mapping_test build/sql_test
 	./build/path_test
 	./build/mapping_test
+	./build/sql_test
 
 clean:
 	rm -rf build
