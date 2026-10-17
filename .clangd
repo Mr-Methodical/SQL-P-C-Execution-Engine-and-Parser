@@ -1,2 +1,5 @@
 CompileFlags:
   Compiler: /usr/bin/g++
+  Add:
+    - std=c++20
+    - -Isrc
