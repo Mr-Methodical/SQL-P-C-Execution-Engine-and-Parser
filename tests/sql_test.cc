@@ -11,11 +11,15 @@ int main() {
         {"WROTE", "paper",  "paper_pid",  "PAPER",  "pid"}
     };
 
+    const std::string source_table{"WROTE"};
+    const std::string author_feature{"author"};
+    const std::string paper_feature{"paper"};
+
     const ReferenceMapping &author_mapping =
-        find_reference(references, "WROTE", "author");
+        find_reference(references, source_table, author_feature);
 
     const ReferenceMapping &paper_mapping =
-        find_reference(references, "WROTE", "paper");
+        find_reference(references, source_table, paper_feature);
 
     // Test 1: AUTHOR relationship.
     const std::string author_sql =

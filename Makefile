@@ -25,12 +25,12 @@ build/sql_test: tests/sql_test.cc src/sql.cc src/sql.h src/mapping.cc \
 	src/sql.cc src/mapping.cc -o $@
 
 run: build/sqlp_demo
-	./build/sqlp_demo
+	@./build/sqlp_demo
 
 test: build/path_test build/mapping_test build/sql_test
-	./build/path_test
-	./build/mapping_test
-	./build/sql_test
+	@./build/path_test
+	@./build/mapping_test
+	@./build/sql_test
 
 clean:
 	rm -rf build

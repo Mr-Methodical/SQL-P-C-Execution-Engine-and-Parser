@@ -13,6 +13,8 @@ struct ReferenceMapping {
     bool operator==(const ReferenceMapping &other) const = default;
 };
 
+// will take in a feature which is what we are mapping the source table to
+// and we will return a reference to it so that we know how to join them
 const ReferenceMapping &find_reference(
     const std::vector<ReferenceMapping> &references,
     const std::string &source_table,

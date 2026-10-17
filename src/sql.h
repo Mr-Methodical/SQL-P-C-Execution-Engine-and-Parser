@@ -5,6 +5,7 @@
 
 #include <string>
 
+// create a join for them based of the aliases we want to give them
 std::string render_join(
     const ReferenceMapping &mapping,
     const std::string &source_alias,

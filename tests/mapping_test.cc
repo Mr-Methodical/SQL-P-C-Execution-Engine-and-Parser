@@ -21,7 +21,7 @@ int main() {
     try {
         find_reference(references, "WROTE", "ryan");
 
-        std::cerr << "find_reference didn't throw error on bad input\n";
+        std::cerr << "find_reference didn't throw error on non-existent feature\n";
         return 1;
     } catch(const std::invalid_argument &) {
         // good this is what we want

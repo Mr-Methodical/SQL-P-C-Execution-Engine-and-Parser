@@ -9,6 +9,7 @@
 
 ## Questions
 - SQL-P has view based approaches that also make it easier to read. How is ours better/different from that?
+- How will we represent information in SQL-P ARM schema like what would our schema be basically as right now for our paths we need some way to know author is associated with that mapping (starting out should I just do it with defined mappings maybe). Enamul in his thesis had buildARM.
 
 ## Schedule
 
@@ -50,3 +51,5 @@ The expected result is Alice and Bob, with each appearing once and no guaranteed
 ### Longer term
 
 The next major goal is my own B+ tree integrated with the executor: first lookup, insertion, splits, and ranges in memory, then page-based storage, a bounded page cache, and a disk-backed tree. Persistence, deletion, transactions, crash recovery, and broader SQLP support will come after the first execution prototype.
+
+Maybe we could also add in type script for a visualization of how it works

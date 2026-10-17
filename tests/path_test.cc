@@ -36,6 +36,7 @@ int main() {
         Path path{"w", {}};
 
         std::cerr << "accepted an empty vector" << std::endl;
+        return 1;
     } catch(const std::invalid_argument &) {
         // nothing we want this
     }
