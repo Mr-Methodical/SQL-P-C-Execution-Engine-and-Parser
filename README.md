@@ -53,4 +53,20 @@ The expected result is Alice and Bob, with each appearing once and no guaranteed
 
 The next major goal is my own B+ tree integrated with the executor: first lookup, insertion, splits, and ranges in memory, then page-based storage, a bounded page cache, and a disk-backed tree. Persistence, deletion, transactions, crash recovery, and broader SQLP support will come after the first execution prototype.
 
-Maybe we could also add in type script for a visualization of how it works
+Maybe we could also add in type script for a visualization of how it 
+
+# Current:
+```mermaid
+flowchart TD
+    A["SQLP Query Text"] --> B["Tokenizer"]
+    B --> C["Parser"]
+    C --> D["AST / Query Objects"]
+    E["Manually Constructed C++ Objects"] --> D
+    D --> F["Semantic Resolution"]
+    F --> G["SQL Code Generator"]
+    G --> H["Generated SQL"]
+    style E fill:#dbeafe,color:#1e40af,stroke:#3b82f6
+    style D fill:#dcfce7,color:#166534,stroke:#22c55e
+    style F fill:#dcfce7,color:#166534,stroke:#22c55e
+    style G fill:#dcfce7,color:#166534,stroke:#22c55e
+```
