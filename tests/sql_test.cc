@@ -1,5 +1,6 @@
 #include "mapping.h"
 #include "sql.h"
+#include "path.h"
 
 #include <iostream>
 #include <string>
@@ -57,6 +58,27 @@ int main() {
         return 1;
     }
 
-    std::cout << "passed all 3 SQL tests\n";
+    const Path path{"w", {"author", "name"}};
+    // now let's test the resolve path function 
+    ResolvedPath join_and_expr = 
+        resolve_path(path, std::string{"WROTE"}, std::string{"a"}, references);
+
+    const Path invalid_path{"w", {"author", "name", "hello"}};
+
+    try {
+        ResolvedPath join_and_expr_invalid = 
+            resolve_path(invalid_path, std::string{"WROTE"}, 
+                         std::string{"a"}, references);
+        std::cerr << "failed: accepted an invalid path\n";
+        return 1;
+    } catch(const std::invalid_argument &) {
+        // this is the expected behavior
+    }
+    if (join_and_expr.join != "JOIN AUTHOR AS a ON w.author_aid = a.aid" ||
+        join_and_expr.expression != "a.name") {
+            std::cerr << "didn't produce the right join or expression";
+            return 1;
+    }
+    std::cout << "passed all 5 SQL tests\n";
     return 0;
 }

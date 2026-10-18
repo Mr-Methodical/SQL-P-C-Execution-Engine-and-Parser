@@ -10,6 +10,7 @@
 ## Questions
 - SQL-P has view based approaches that also make it easier to read. How is ours better/different from that?
 - How will we represent information in SQL-P ARM schema like what would our schema be basically as right now for our paths we need some way to know author is associated with that mapping (starting out should I just do it with defined mappings maybe). Enamul in his thesis had buildARM.
+- ask for him to go over buildARM syntax I was a bit confused
 
 ## Schedule
 
