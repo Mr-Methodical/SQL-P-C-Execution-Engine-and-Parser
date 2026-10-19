@@ -4,6 +4,10 @@
 #include <string>
 #include <vector>
 
+// ex. ReferenceMapping{"WROTE", "author", "author_aid", "AUTHOR", "aid"};
+// maps the ARM feature w.author to the SQL relationship:
+// JOIN AUTHOR AS a ON w.author_aid = a.aid
+// this allows us to resolve a path like w.author.name into a.name.
 struct ReferenceMapping {
     std::string source_table;
     std::string feature;

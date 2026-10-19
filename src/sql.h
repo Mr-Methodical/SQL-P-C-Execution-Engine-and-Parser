@@ -26,4 +26,9 @@ ResolvedPath resolve_path(
     const std::vector<ReferenceMapping> &references
 );
 
+struct ColumnRef {
+    std::string alias;
+    std::string column;
+};
+
 #endif
