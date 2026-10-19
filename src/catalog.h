@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+// we should probably add EID in future for ARM schema
 enum class ColumnType { Integer, String };
 
 struct ColumnSchema {
