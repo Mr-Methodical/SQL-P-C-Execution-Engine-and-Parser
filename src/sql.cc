@@ -2,10 +2,12 @@
 
 #include <stdexcept>
 
+// ex. a.name
 std::string render_column(const ColumnRef &column) {
     return column.alias + "." + column.column;
 }
 
+// "JOIN AUTHOR AS a ON w.author_aid = a.aid"
 std::string render_join(const JoinSpec &join) {
     return "JOIN " + join.target_table +
            " AS " + join.target.alias +
@@ -31,16 +33,18 @@ ResolvedPath resolve_path(
     const std::string &target_alias,
     const Catalog &catalog
 ) {
+    // we are only doing it for one hop right now
     if (path.features().size() != 2) {
         throw std::invalid_argument{
             "This resolver requires exactly two features"
         };
     }
-
+     
     const ReferenceMapping &mapping = find_reference(
         catalog.references, source_table, path.features()[0]
     );
 
+    // these are checks to make sure we have these table names-column pairs
     find_column(catalog, source_table, mapping.source_column);
     find_column(catalog, mapping.target_table, mapping.target_column);
     find_column(catalog, mapping.target_table, path.features()[1]);
