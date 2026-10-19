@@ -19,10 +19,10 @@ build/mapping_test: tests/mapping_test.cc src/mapping.cc src/mapping.h Makefile
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) tests/mapping_test.cc src/mapping.cc -o $@
 
 build/sql_test: tests/sql_test.cc src/sql.cc src/sql.h src/mapping.cc \
-				src/mapping.h Makefile src/path.h 
+				src/mapping.h src/path.h src/catalog.cc src/catalog.h Makefile
 	mkdir -p build
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) tests/sql_test.cc \
-	src/sql.cc src/mapping.cc -o $@
+	src/sql.cc src/mapping.cc src/catalog.cc -o $@
 
 run: build/sqlp_demo
 	@./build/sqlp_demo

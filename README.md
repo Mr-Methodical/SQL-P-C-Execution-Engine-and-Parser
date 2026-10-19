@@ -4,8 +4,12 @@
 - https://docs.aws.amazon.com/glue/latest/dg/catalog-and-crawler.html
 
 ## Notes
-- Implemented path validation, reference lookup, and SQL JOIN rendering.
-- Next: one-hop path resolution toward a native C++ engine with our own disk-backed B+ tree.
+- Implemented path validation, reference lookup, and one-hop path resolution.
+- Resolved paths contain structured JoinSpec and ColumnRef values.
+- Added a catalog recording tables, column types, unique-key declarations, and references.
+- Resolution checks that join columns and requested columns exist.
+- Generated and tested the complete AUTHOR/PAPER/WROTE SQL query from C++ objects.
+- Next: in-memory tables and native C++ query execution.
 
 ## Questions
 - SQL-P has view based approaches that also make it easier to read. How is ours better/different from that?
@@ -15,13 +19,6 @@
 ## Schedule
 
 aiming to have a small native C++ execution prototype working by **October 31**.
-
-### This week: October 14–18
-
-- Fix the empty-vector test so it fails properly if an invalid path is accepted.
-- Add one-hop path resolution, connecting the existing reference lookup and JOIN rendering.
-- Generate the complete SQL query for the AUTHOR/PAPER/WROTE example from C++ objects.
-- Start representing joins and columns as structured data, with a small catalog for tables, column types, keys, and references.
 
 ### October 19–25
 
@@ -55,7 +52,11 @@ The next major goal is my own B+ tree integrated with the executor: first lookup
 
 Maybe we could also add in type script for a visualization of how it 
 
-# Current:
+## Planned pipeline
+
+The tokenizer, parser, reusable query objects, and general SQL generator
+are planned. Currently, tests construct C++ Path objects directly,
+resolve them, and assemble the complete SQL query.
 ```mermaid
 flowchart TD
     A["SQLP Query Text"] --> B["Tokenizer"]

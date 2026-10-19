@@ -1,16 +1,36 @@
 #include "mapping.h"
 #include "sql.h"
 #include "path.h"
+#include "catalog.h"
 
 #include <iostream>
 #include <string>
 #include <vector>
+#include <stdexcept>
 
 int main() {
-    const std::vector<ReferenceMapping> references{
-        {"WROTE", "author", "author_aid", "AUTHOR", "aid"},
-        {"WROTE", "paper",  "paper_pid",  "PAPER",  "pid"}
+    const Catalog catalog{
+        {
+            {"AUTHOR", {
+                {"aid", ColumnType::Integer, true},
+                {"name", ColumnType::String}
+            }},
+            {"PAPER", {
+                {"pid", ColumnType::Integer, true},
+                {"title", ColumnType::String}
+            }},
+            {"WROTE", {
+                {"author_aid", ColumnType::Integer},
+                {"paper_pid", ColumnType::Integer}
+            }}
+        },
+        {
+            {"WROTE", "author", "author_aid", "AUTHOR", "aid"},
+            {"WROTE", "paper", "paper_pid", "PAPER", "pid"}
+        }
     };
+
+    const auto &references = catalog.references;
 
     const std::string source_table{"WROTE"};
     const std::string author_feature{"author"};
@@ -61,7 +81,7 @@ int main() {
     const Path path{"w", {"author", "name"}};
     // now let's test the resolve path function 
     ResolvedPath join_and_expr = 
-        resolve_path(path, std::string{"WROTE"}, std::string{"a"}, references);
+        resolve_path(path, std::string{"WROTE"}, std::string{"a"}, catalog);
 
     const Path invalid_path{"w", {"author", "name", "hello"}};
 
@@ -69,7 +89,7 @@ int main() {
     try {
         ResolvedPath join_and_expr_invalid = 
             resolve_path(invalid_path, std::string{"WROTE"}, 
-                         std::string{"a"}, references);
+                         std::string{"a"}, catalog);
         std::cerr << "failed: accepted an invalid path\n";
         return 1;
     } catch(const std::invalid_argument &) {
@@ -80,7 +100,7 @@ int main() {
         ResolvedPath join_and_expr_invalid = 
             resolve_path(Path{"w", std::vector{std::string{"hi"}}}, 
                          std::string{"WROTE"}, 
-                         std::string{"a"}, references);
+                         std::string{"a"}, catalog);
         std::cerr << "failed: accepted an invalid path\n";
         return 1;
     } catch(const std::invalid_argument &) {
@@ -91,7 +111,7 @@ int main() {
     try {
         ResolvedPath join_and_expr_invalid = 
             resolve_path(Path{"w", {"missing", "name"}}, std::string{"WROTE"}, 
-                         std::string{"a"}, references);
+                         std::string{"a"}, catalog);
         std::cerr << "failed: accepted an invalid path\n";
         return 1;
     } catch(const std::invalid_argument &) {
@@ -102,23 +122,23 @@ int main() {
     try {
         ResolvedPath join_and_expr_invalid = 
             resolve_path(path, std::string{"UNKNOWN"}, 
-                         std::string{"a"}, references);
+                         std::string{"a"}, catalog);
         std::cerr << "failed: accepted an invalid path\n";
         return 1;
     } catch(const std::invalid_argument &) {
         // this is the expected behavior
     }
-    if (join_and_expr.join != "JOIN AUTHOR AS a ON w.author_aid = a.aid" ||
-        join_and_expr.expression != "a.name") {
+    if (render_join(join_and_expr.join) != "JOIN AUTHOR AS a ON w.author_aid = a.aid" ||
+        render_column(join_and_expr.column) != "a.name") {
             std::cerr << "didn't produce the right join or expression\n";
             return 1;
     }
     // let's try it with different aliases as well:
     join_and_expr =
         resolve_path(Path{"r", {"paper", "title"}}, 
-        std::string{"WROTE"}, std::string{"a"}, references);
-    if (join_and_expr.join != "JOIN PAPER AS a ON r.paper_pid = a.pid" ||
-        join_and_expr.expression != "a.title") {
+        std::string{"WROTE"}, std::string{"a"}, catalog);
+    if (render_join(join_and_expr.join) != "JOIN PAPER AS a ON r.paper_pid = a.pid" ||
+        render_column(join_and_expr.column) != "a.title") {
             std::cerr << "didn't produce the right join or expression\n";
             return 1;
     }
@@ -129,17 +149,17 @@ int main() {
     const Path filter_path{source_alias, {"paper", "title"}};
 
     const ResolvedPath select_result =
-        resolve_path(select_path, source_table, "a", references);
+        resolve_path(select_path, source_table, "a", catalog);
     const ResolvedPath filter_result =
-        resolve_path(filter_path, source_table, "p", references);
+        resolve_path(filter_path, source_table, "p", catalog);
 
     const std::string query =
-        std::string{"SELECT DISTINCT "} + select_result.expression +
+        std::string{"SELECT DISTINCT "} + render_column(select_result.column) +
         " AS author_name\n" +
         "FROM " + source_table + " AS " + source_alias + "\n" +
-        select_result.join + "\n" +
-        filter_result.join + "\n" +
-        "WHERE " + filter_result.expression + " = 'Databases';";
+        render_join(select_result.join) + "\n" +
+        render_join(filter_result.join) + "\n" +
+        "WHERE " + render_column(filter_result.column) + " = 'Databases';";
 
     const std::string expected_query =
         "SELECT DISTINCT a.name AS author_name\n"
@@ -154,7 +174,44 @@ int main() {
                 << "Actual:\n" << query << "\n";
         return 1;
     }
+    // Test 11: verify structured fields and catalog metadata.
+    if (select_result.join.target_table != "AUTHOR" ||
+        select_result.join.source.alias != "w" ||
+        select_result.join.source.column != "author_aid" ||
+        select_result.join.target.alias != "a" ||
+        select_result.join.target.column != "aid" ||
+        select_result.column.alias != "a" ||
+        select_result.column.column != "name" ||
+        find_column(catalog, "AUTHOR", "name").type != ColumnType::String ||
+        !find_column(catalog, "AUTHOR", "aid").unique) {
+        std::cerr << "structured path or catalog metadata did not match\n";
+        return 1;
+    }
 
-    std::cout << "passed all 10 SQL tests\n";
+    // Test 12: reject a missing column on a known target table.
+    try {
+        resolve_path(
+            Path{"w", {"author", "missing"}},
+            source_table, "a", catalog
+        );
+
+        std::cerr << "accepted an unknown terminal column\n";
+        return 1;
+    } catch (const std::invalid_argument &) {
+        // Expected.
+    }
+
+    // Test 13: reject an unknown catalog table.
+    try {
+        find_column(catalog, "UNKNOWN", "aid");
+
+        std::cerr << "accepted an unknown catalog table\n";
+        return 1;
+    } catch (const std::invalid_argument &) {
+        // Expected.
+        // it would throw because of unknown table
+    }
+
+    std::cout << "passed all 13 SQL tests\n";
     return 0;
 }
